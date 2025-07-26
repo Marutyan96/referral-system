@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реферальная система</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            border: 1px solid transparent;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            padding: 10px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,.25);
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        hr {
+            margin: 25px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+        .hidden {
+            display: none;
+        }
+        .profile-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        .referrals-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .referrals-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .referrals-list li:last-child {
+            border-bottom: none;
+        }
+        h1, h2, h3 {
+            color: #343a40;
+        }
+        h1 {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Реферальная система</h1>
+
+{% if message %}
+<div class="message success">
+    {% if 'Код отправлен' in message %}
+        Код отправлен на {{ phone|default:request.session.auth_phone }}: <strong>{{ request.session.auth_code }}</strong>
+    {% else %}
+        {{ message }}
+    {% endif %}
+</div>
+{% endif %}
+
+    {% if error %}
+    <div class="message error">{{ error }}</div>
+    {% endif %}
+
+    <!-- Запрос кода -->
+    <div class="form-section" id="request-code-section">
+        <h2>Авторизация</h2>
+        <form id="phone-form" action="{% url 'referral:request-code' %}" method="post">
+            {% csrf_token %}
+            <label for="phone1">Номер телефона:</label>
+            <input type="tel" id="phone1" name="phone_number" required 
+                   value="{{ request.session.auth_phone|default:'' }}"
+                   placeholder="+7 (999) 123-45-67"
+                   title="Введите номер в формате +79991234567">
+            <button type="submit">Получить код</button>
+        </form>
+    </div>
+
+    <!-- Подтверждение кода -->
+    <div class="form-section {% if not show_confirm_form and not request.session.auth_phone %}hidden{% endif %}" id="confirm-code-section">
+        <h2>Подтверждение кода</h2>
+        <form action="{% url 'referral:confirm-code' %}" method="post">
+            {% csrf_token %}
+            <label for="phone2">Номер телефона:</label>
+            <input type="tel" id="phone2" name="phone_number" required
+                   value="{% firstof phone request.session.auth_phone '' %}" readonly>
+            <label for="code">Код подтверждения (4 цифры):</label>
+            <input type="text" id="code" name="code" required
+                   pattern="\d{4}" maxlength="4" placeholder="1234">
+            <button type="submit">Подтвердить</button>
+        </form>
+    </div>
+
+    <!-- Профиль пользователя -->
+    <div class="form-section {% if not show_profile %}hidden{% endif %}" id="profile-section">
+        <h2>Ваш профиль</h2>
+        
+        {% if user %}
+        <div class="profile-info">
+            <p><strong>Номер телефона:</strong> {{ user.phone_number }}</p>
+            <p><strong>Ваш инвайт-код:</strong> <code>{{ user.invite_code }}</code></p>
+            {% if user.activated_invite_code %}
+                <p><strong>Активированный код:</strong> <code>{{ user.activated_invite_code }}</code></p>
+            {% endif %}
+        </div>
+
+        {% if not user.activated_invite_code %}
+        <div class="form-section">
+            <h3>Активировать чужой инвайт-код</h3>
+            <form action="{% url 'referral:profile' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="phone_number" value="{{ user.phone_number }}">
+                <label for="invite_code">Введите инвайт-код (6 символов):</label>
+                <input type="text" id="invite_code" name="invite_code" required
+                       pattern="[A-Z0-9]{6}" maxlength="6" placeholder="ABC123">
+                <button type="submit">Активировать код</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="form-section">
+            <h3>Ваши рефералы</h3>
+            {% if referrals %}
+            <ul class="referrals-list">
+                {% for referral in referrals %}
+                <li>{{ referral.phone_number }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>У вас пока нет рефералов. Поделитесь своим инвайт-кодом: <code>{{ user.invite_code }}</code></p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Маска для телефона с форматированием
+            const phoneInput = document.getElementById('phone1');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    // Удаляем все нецифровые символы
+                    let value = e.target.value.replace(/\D/g, '');
+                    
+                    // Добавляем +7 если его нет
+                    if (!value.startsWith('7') && !value.startsWith('+7')) {
+                        value = '7' + value;
+                    }
+                    
+                    // Форматируем номер с пробелами
+                    let formattedValue = '+7';
+                    if (value.length > 1) {
+                        formattedValue += ' (' + value.substring(1, 4);
+                    }
+                    if (value.length > 4) {
+                        formattedValue += ') ' + value.substring(4, 7);
+                    }
+                    if (value.length > 7) {
+                        formattedValue += '-' + value.substring(7, 9);
+                    }
+                    if (value.length > 9) {
+                        formattedValue += '-' + value.substring(9, 11);
+                    }
+                    
+                    e.target.value = formattedValue;
+                });
+                
+                // Перед отправкой формы очищаем форматирование
+                document.getElementById('phone-form').addEventListener('submit', function() {
+                    phoneInput.value = '+7' + phoneInput.value.replace(/\D/g, '').substring(1);
+                });
+            }
+
+            // Автоматическое перемещение между цифрами кода
+            const codeInput = document.getElementById('code');
+            if (codeInput) {
+                codeInput.addEventListener('input', function(e) {
+                    if (e.target.value.length === 4) {
+                        document.querySelector('#confirm-code-section form button').focus();
+                    }
+                });
+            }
+
+            // Показать профиль если есть параметр в URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('show') === 'profile') {
+                document.getElementById('profile-section').classList.remove('hidden');
+                document.getElementById('request-code-section').classList.add('hidden');
+                document.getElementById('confirm-code-section').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

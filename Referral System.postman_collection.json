@@ -1,0 +1,120 @@
+{
+  "info": {
+    "_postman_id": "...",
+    "name": "Referral System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Request Auth Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"phone_number\": \"+79024205476\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/request/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "request", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Verify Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"phone_number\": \"+79024205476\",\n    \"code\": \"1234\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/confirm/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "confirm", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/profile/?phone_number=+79024205476",
+          "host": ["{{base_url}}"],
+          "path": ["api", "profile", ""],
+          "query": [
+            {
+              "key": "phone_number",
+              "value": "+79024205476"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Activate Invite Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"phone_number\": \"+79024205476\",\n    \"invite_code\": \"ABC123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/profile/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "profile", ""]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    }
+  ]
+}
