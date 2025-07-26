@@ -1,120 +1,91 @@
 {
   "info": {
-    "_postman_id": "...",
-    "name": "Referral System",
+    "_postman_id": "c1e3d2fa-d441-4b50-b47c-123456789abc",
+    "name": "Referral System (Updated)",
+    "description": "Postman коллекция для тестирования API реферальной системы.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Request Auth Code",
+      "name": "🔑 Auth: Request Code",
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"phone_number\": \"+79024205476\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+          "raw": "{\n  \"phone_number\": \"{{phone_number}}\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/auth/request/",
           "host": ["{{base_url}}"],
-          "path": ["api", "auth", "request", ""]
-        }
-      },
-      "response": []
+          "path": ["api", "auth", "request"]
+        },
+        "description": "Отправка 4-значного кода на номер телефона. Имитируется задержка отправки (1–2 сек)."
+      }
     },
     {
-      "name": "Verify Code",
+      "name": "🔑 Auth: Verify Code",
       "request": {
         "method": "POST",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Content-Type", "value": "application/json" }
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"phone_number\": \"+79024205476\",\n    \"code\": \"1234\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+          "raw": "{\n  \"phone_number\": \"{{phone_number}}\",\n  \"code\": \"{{auth_code}}\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/auth/confirm/",
           "host": ["{{base_url}}"],
-          "path": ["api", "auth", "confirm", ""]
-        }
-      },
-      "response": []
+          "path": ["api", "auth", "confirm"]
+        },
+        "description": "Подтверждение кода. При успешной верификации выдается JWT токен и создается пользователь (если не существовал)."
+      }
     },
     {
-      "name": "Get Profile",
+      "name": "👤 Profile: Get Profile Info",
       "request": {
         "method": "GET",
         "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
+          { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
         ],
-        "url": {
-          "raw": "{{base_url}}/api/profile/?phone_number=+79024205476",
-          "host": ["{{base_url}}"],
-          "path": ["api", "profile", ""],
-          "query": [
-            {
-              "key": "phone_number",
-              "value": "+79024205476"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Activate Invite Code",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"phone_number\": \"+79024205476\",\n    \"invite_code\": \"ABC123\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
         "url": {
           "raw": "{{base_url}}/api/profile/",
           "host": ["{{base_url}}"],
-          "path": ["api", "profile", ""]
-        }
-      },
-      "response": []
+          "path": ["api", "profile"]
+        },
+        "description": "Получение информации о текущем пользователе, включая свой инвайт-код, использованный чужой код и список приглашённых."
+      }
+    },
+    {
+      "name": "👤 Profile: Activate Invite Code",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{auth_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invite_code\": \"{{invite_code}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/profile/activate_invite/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "profile", "activate_invite"]
+        },
+        "description": "Активация чужого инвайт-кода. Один пользователь может ввести только один код."
+      }
     }
   ],
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000"
-    }
+    { "key": "base_url", "value": "http://83.222.19.174:8080" },
+    { "key": "phone_number", "value": "+79024205476" },
+    { "key": "auth_code", "value": "1234" },
+    { "key": "invite_code", "value": "ABC123" },
+    { "key": "auth_token", "value": "" }
   ]
 }
