@@ -7,21 +7,24 @@
 **API доступен по адресу:**  
 👉 [http://83.222.19.174:8080/](http://83.222.19.174:8080/)
 
-🧪 Тестирование:
-Импортируйте файл Referral System.postman_collection.json в Postman.
-Коллекция включает все необходимые запросы с переменными:
-base_url
-phone_number
-auth_code
-auth_token
-invite_code
+## 🧪 Тестирование
 
-🛠️ Стек технологий
-Python
-Django
-Django REST Framework
-PostgreSQL
-Docker + Docker Compose
+Импортируйте файл `Referral System.postman_collection.json` в Postman.  
+Коллекция включает все необходимые запросы с переменными:
+
+- `base_url`
+- `phone_number`
+- `auth_code`
+- `auth_token`
+- `invite_code`
+
+## 🛠️ Стек технологий
+
+- Python  
+- Django  
+- Django REST Framework  
+- PostgreSQL  
+- Docker + Docker Compose
 
 ## 📌 Функциональность
 
@@ -40,7 +43,4 @@ Docker + Docker Compose
 git clone https://github.com/Marutyan96/referral-system.git
 cd referral-system
 docker-compose down -v && docker-compose up --build
-
-
-
 
