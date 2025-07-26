@@ -24,3 +24,9 @@
 
 ```http
 POST /api/auth/request_code/
+
+
+⚙️ Локальный запуск
+git clone https://github.com/Marutyan96/referral-system.git
+cd referral-system
+docker-compose down -v && docker-compose up --build
